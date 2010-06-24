@@ -59,3 +59,4 @@
 
 require_recipe "delayed_job"
 require_recipe "git_ftp"
+require_recipe "personal_env"

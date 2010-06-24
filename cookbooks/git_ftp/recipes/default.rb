@@ -28,9 +28,10 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
   
   execute "add-to-path" do
     command %Q{
-      ln -nfs #{dir}/git-ftp /usr/local/bin/git-ftp
+      ln -nfs #{dir}/git-ftp #{dir}/bin/git-ftp
+      echo 'export PATH=$PATH:#{dir}/bin' >> /etc/profile
     }
-    not_if { File.exists?("/usr/local/bin/git-ftp") }
+    not_if "grep 'export PATH=$PATH:#{dir}/bin' /etc/profile"
   end
   
 end
