@@ -2,6 +2,8 @@
 # Cookbook Name:: delayed_job
 # Recipe:: default
 #
+# Set your application name here
+appname = "editpreview"
 
 # run DelayedJob worker on app instances
 if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
@@ -9,7 +11,7 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
   rails_env = node[:environment][:framework_env]
   worker_name = "delayed_job"
 
-  run_for_app('editpreview') do |app_name, data|
+  run_for_app(appname) do |app_name, data|
     directory "/var/run/delayed_job" do
       owner node[:owner_name]
       group node[:owner_name]
