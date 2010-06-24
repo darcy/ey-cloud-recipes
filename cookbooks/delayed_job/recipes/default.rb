@@ -49,17 +49,6 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
       })
     end
   
-    template "/data/#{app_name}/shared/config/delayed_job.yml" do
-      source "delayed_job.yml.erb"
-      owner node[:owner_name]
-      group node[:owner_name]
-      mode 0644
-      variables({
-        :app_name => app_name,
-        :rails_env => rails_env
-      })
-    end
-    
     # Reload monit to pick up configuration changes 
     bash "monit-reload-restart" do
       user "root"
