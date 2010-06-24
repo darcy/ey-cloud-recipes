@@ -59,5 +59,16 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
         :rails_env => rails_env
       })
     end
+    
+    # Reload monit to pick up configuration changes 
+    bash "monit-reload-restart" do
+      user "root"
+      code "monit reload && monit"
+      #kill all workers to remove any orphaned workers caused when monit spawns extra processes
+      #see https://cloud-support.engineyard.com/discussions/problems/415-monit-restart-doesnt-operate-reliably
+      code "pidof #{worker_name} | xargs --no-run-if-empty kill"
+      #were the above not a concern we could simply restart the job runner in the new environment
+      #code "monit restart #{worker_name}"
+    end
   end
 end
