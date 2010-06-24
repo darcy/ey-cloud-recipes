@@ -3,37 +3,59 @@
 # Recipe:: default
 #
 
-if %w(solo app app_master).include?(node[:instance_role])
-  user = node[:owner_name]
-  framework_env = node[:environment][:framework_env]
+# run DelayedJob worker on app instances
+if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
+  app_name = node[:applications].keys.first
+  rails_env = node[:environment][:framework_env]
+  worker_name = "delayed_job"
 
-  # Be sure to replace APP_NAME with the name of your application.
-  # The run_for_app method also accepts multiple application name arguments.
   run_for_app('editpreview') do |app_name, data|
-    worker_name = "#{app_name}_delayed_job"
-
-    directory "/data/#{app_name}/shared/pids" do
-      owner user
-      group user
+    directory "/var/run/delayed_job" do
+      owner node[:owner_name]
+      group node[:owner_name]
       mode 0755
     end
 
-    template "/etc/monit.d/delayed_job_worker.#{app_name}.monitrc" do
-      source 'delayed_job_worker.monitrc.erb'
-      owner 'root'
-      group 'root'
-      mode 0644
-      variables(
-        :app_name => app_name,
-        :user => user,
-        :worker_name => worker_name,
-        :framework_env => framework_env
-      )
+    directory "/var/log/engineyard/delayed_job/#{app_name}" do
+      recursive true
+      owner node[:owner_name]
+      group node[:owner_name]
+      mode 0755
     end
 
-    bash 'monit-reload-restart' do
-      user 'root'
-      code 'monit reload && monit'
+    remote_file "/etc/logrotate.d/delayed_job" do
+      owner "root"
+      group "root"
+      mode 0755
+      source "delayed_job.logrotate"
+      action :create
+    end
+
+    template "/etc/monit.d/delayed_job_worker_#{app_name}.monitrc" do
+      source "delayed_job_worker.monitrc.erb"
+      owner "root"
+      group "root"
+      mode 0644
+      variables({
+        :app_name => app_name,
+        :rails_env => rails_env,
+        :worker_name => worker_name,
+        :user => node[:owner_name],
+        :min_priority => 0,
+        # most servers only handle top priority (0) jobs, but utility servers handle all jobs (0-100)
+        :max_priority => node[:instance_role] == 'util' ? 100 : 0
+      })
+    end
+  
+    template "/data/#{app_name}/shared/config/delayed_job.yml" do
+      source "delayed_job.yml.erb"
+      owner node[:owner_name]
+      group node[:owner_name]
+      mode 0644
+      variables({
+        :app_name => app_name,
+        :rails_env => rails_env
+      })
     end
   end
 end
