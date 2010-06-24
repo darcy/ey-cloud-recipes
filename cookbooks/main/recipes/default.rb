@@ -58,3 +58,4 @@
 #require_recipe "eybackup_verbose"
 
 require_recipe "delayed_job"
+require_recipe "git_ftp"
