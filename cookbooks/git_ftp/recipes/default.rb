@@ -3,6 +3,7 @@
 if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
 
   package="resmo-git-ftp-0.0.9-0-g23921a3"
+  package_folder="resmo-git-ftp-23921a3"
   dir = "/usr/local/git-ftp"
   
   directory dir do
@@ -18,8 +19,9 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
       
       curl -L http://github.com/resmo/git-ftp/tarball/0.0.9 -o #{package}.tgz &&
       tar zxvf #{package}.tgz &&
-      mv #{package} #{dir} &&
-      rm #{package}.tgz
+      mv #{package_folder}/* #{dir}/. &&
+      rm #{package}.tgz &&
+      rm #{package_folder}
     }
     not_if { File.exists?("#{dir}/git-ftp") }
   end
