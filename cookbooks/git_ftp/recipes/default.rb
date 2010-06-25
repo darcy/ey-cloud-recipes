@@ -23,16 +23,16 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
       rm #{package}.tgz &&
       rm #{package_folder}
     }
-    not_if { File.exists?("#{dir}/git-ftp") }
+    not_if { File.exists?("#{dir}/git-ftp.sh") }
   end
   
   execute "add-to-path" do
     command %Q{
       mkdir -p #{dir}/bin &&
-      ln -nfs #{dir}/git-ftp #{dir}/bin/git-ftp &&
+      ln -nfs #{dir}/git-ftp.sh #{dir}/bin/git-ftp &&
       echo 'export PATH="$PATH:#{dir}/bin"' >> /etc/profile
     }
-    not_if "grep 'export PATH=$PATH:#{dir}/bin' /etc/profile"
+    not_if "grep 'export PATH=\"$PATH:#{dir}/bin\"' /etc/profile"
   end
   
 end
