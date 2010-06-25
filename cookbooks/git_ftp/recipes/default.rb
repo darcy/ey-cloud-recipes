@@ -29,6 +29,7 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
   execute "add-to-path" do
     command %Q{
       mkdir -p #{dir}/bin &&
+      chmod 755 #{dir}/bin/git-ftp.sh &&
       ln -nfs #{dir}/git-ftp.sh #{dir}/bin/git-ftp &&
       echo 'export PATH="$PATH:#{dir}/bin"' >> /etc/profile
     }
