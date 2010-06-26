@@ -2,8 +2,10 @@
 # Recipe:: default
 if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
 
+  package_location="http://github.com/darcy/git-ftp/tarball/0.0.9"
   package="darcy-git-ftp-0.0.9-0-g23921a3"
   package_folder="darcy-git-ftp-23921a3"
+  
   dir = "/usr/local/git-ftp"
   
   directory dir do
@@ -17,7 +19,7 @@ if ['solo', 'app', 'app_master', 'util'].include?(node[:instance_role])
   execute "install-git-ftp" do
     command %Q{
       
-      curl -L http://github.com/darcy/git-ftp/tarball/0.0.9 -o #{package}.tgz &&
+      curl -L #{package_location} -o #{package}.tgz &&
       tar zxvf #{package}.tgz &&
       mv #{package_folder}/* #{dir}/. &&
       rm #{package}.tgz &&
